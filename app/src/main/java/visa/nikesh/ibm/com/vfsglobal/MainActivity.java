@@ -8,8 +8,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +57,9 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     EditText age;
     EditText contact;
     String build = "5";
+    String passname;
+    String passcontact;
+    String passage;
     // From Bitbucket in Nikesh Working
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +111,10 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     }
 
     public void processVisaForm(View v) {
+
+        passage = age.getText().toString();
+        passcontact = contact.getText().toString();
+        passname = name.getText().toString();
 
         ProcessVisa proc = new ProcessVisa();
         proc.execute();
@@ -175,7 +186,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
     private class ProcessVisa extends AsyncTask<Void, Void, Void>
     {
 
-        final String url="http://192.168.5.104:7800/esb/restService?name='"+URLEncoder.encode(name.toString())+"'&age='"+URLEncoder.encode(age.toString())+"'&contact='"+URLEncoder.encode(contact.toString())+"'";
+        final String url="http://192.168.43.206:7800/  ?name="+passname+"&age="+passage+"&contact="+passcontact+"";
+        //final String url="http://192.168.43.206:7800/esb/restService?name=vikastatic&age=23&contact=3333";
         ProgressDialog dialog = new ProgressDialog(MainActivity.this);
         protected void onPreExecute() {
 
@@ -185,25 +197,11 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         @Override
         protected Void doInBackground(Void... params) {
             // TODO Auto-generated method stub
-            HttpParams httpParameters = new BasicHttpParams();
-            HttpClient client1 = new DefaultHttpClient(httpParameters);
 
             try {
                 System.out.println("Bloody in");
-                HttpGet request = new HttpGet(url);
-                request.addHeader("content-type", "application/json");
-                HttpResponse rs = client1.execute(request);
-
-                /*
-                BufferedReader rd = new BufferedReader(new InputStreamReader(rs.getEntity().getContent()));
-                StringBuffer result = new StringBuffer();
-                String line = "";
-                while ((line = rd.readLine()) != null) {
-                    result.append(line);
-                }
-                String cust_id = "0";
-                System.out.println(result);  // Status 200 and 201
-                */
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpResponse response = httpclient.execute(new HttpGet(url));
             }
             catch(Exception e) {
 
@@ -218,7 +216,8 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
             if (dialog.isShowing()) {
                 dialog.dismiss();
             }
-            Toast.makeText(MainActivity.this, new StringBuilder().append("Visa Processed Successfully"),   Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, new StringBuilder().append("Visa Processed Successfully"),Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, new StringBuilder().append(url),   Toast.LENGTH_SHORT).show();
         }
     }
 
